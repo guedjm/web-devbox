@@ -1,0 +1,91 @@
+# import the code and bind it on /var/www
+application:
+  build: application
+  volumes:
+    - ./sources:/var/www/
+  tty: true
+
+# import the db directory
+db:
+  build: db
+  volumes:
+    - ./data:/var/lib/mysql
+  tty: true
+
+# mysql container
+mysql:
+  build: mysql
+  ports:
+    - 3306:3306
+  environment:
+    MYSQL_ROOT_PASSWORD: qKs2rJkbHJf8kPfW
+    MYSQL_USER: dev
+    MYSQL_PASSWORD: pMd9YZkRMjyvdBqH
+  volumes_from:
+    - db
+  volumes:
+    - ./mysql/conf:/etc/mysql/conf.d
+
+php5.6:
+  build: php-fpm/5.6
+  links:
+    - mysql
+    - mailhog
+  volumes_from:
+    - application
+  volumes:
+    - ./logs/php-fpm/5.6/:/var/log
+
+php7:
+  build: php-fpm/7
+  links:
+    - mysql
+    - mailhog
+  volumes_from:
+    - application
+  volumes:
+    - ./logs/php-fpm/7/:/var/log
+
+# nginx container
+nginx:
+  build: nginx
+  ports:
+    - 80:80
+  links:
+    - php5.6
+    - php7
+    - mailhog
+    - pma
+  volumes_from:
+    - application
+  volumes:
+    - ./logs/nginx:/var/log/nginx
+    - ./nginx/config:/etc/nginx/sites-enabled
+
+# mailhog
+mailhog:
+  image: mailhog/mailhog
+  ports:
+    - 8025:8025
+    - 1025:1025
+
+# varnish
+varnish:
+  image: million12/varnish
+  links:
+    - nginx
+  volumes:
+    - ./varnish/default.vcl:/etc/varnish/default.vcl
+  ports:
+    - 3000:80
+
+# pma
+pma:
+  image: phpmyadmin/phpmyadmin
+  links:
+    - mysql
+  environment:
+    PMA_HOST: mysql
+    PMA_PORT: 3306
+  ports:
+    - 8181:80
