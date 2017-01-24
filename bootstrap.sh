@@ -16,17 +16,3 @@ if [ -f /home/vagrant/.bashrc ]; then
   cp /etc/skel/.bashrc /home/vagrant
   echo export PATH=$PATH:/home/vagrant/.config/composer/vendor/bin >> /home/vagrant/.bashrc
 fi
-
-echo "Configuring git client ..."
-echo -n "Username : "
-read username
-echo -n "Email address: "
-read email
-
-git config --global user.name $username
-git config --global user.email $email
-
-echo "Creating ssh key ..."
-echo -n "Passphrase: "
-read passphrase
-ssh-keygen -t rsa -b 4096 -C $email -P $passphrase
