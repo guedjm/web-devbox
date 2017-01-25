@@ -31,6 +31,7 @@ php5.6:
   links:
     - mysql
     - mailhog
+    - memcached
   volumes_from:
     - application
   volumes:
@@ -41,6 +42,7 @@ php7:
   links:
     - mysql
     - mailhog
+    - memcached
   volumes_from:
     - application
   volumes:
@@ -89,3 +91,9 @@ pma:
     PMA_PORT: 3306
   ports:
     - 8181:80
+
+# memcached
+memcached:
+  image: memcached
+  ports:
+    - 11211:11211
